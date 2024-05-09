@@ -3,16 +3,28 @@ from  rest_framework.response import Response
 from rest_framework import status
 from category.models import Category
 from product.models import Product
-from product.serializers import ProductSerializer
+from product.serializers import ProductSerializer, ProductSerializerView
 from rest_framework.decorators import api_view
+
+
+from django.core.cache import cache
 
 # Create your views here.
 
 
 @api_view(["GET"])
 def getProducts(request):
+
+    cached_data = cache.get("cached_products")
+    if cached_data:
+        print("Data from Redis")
+        return Response(cached_data, status=status.HTTP_200_OK)
+
+    print("Data from the API")
     products = Product.objects.all().order_by("-time_created", "date_created")
-    serializer = ProductSerializer(products, many=True)
+    serializer = ProductSerializerView(products, many=True)
+
+    cache.set("cached_products", serializer.data, timeout=900)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -32,6 +44,9 @@ def getProduct(request, pk):
 
 @api_view(["GET"])
 def getProductsByCategory(request):
+
+    
+
     category = request.GET.get('category')  # Get the category parameter from the request query string
     products = Product.objects.all()
 
@@ -43,6 +58,7 @@ def getProductsByCategory(request):
     products = products.order_by("-time_created", "date_created")
 
     serializer = ProductSerializer(products, many=True)
+   
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 

@@ -26,6 +26,9 @@ SECRET_KEY = 'django-insecure-2m8p0w0#us+rqt(9mt@+&9io7v_ltvn^kobp3+8mku#5fcu9dk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+if os.getcwd() == '/app':
+    DEBUG = False
+
 ALLOWED_HOSTS = ['*']
 
 
@@ -149,6 +152,21 @@ CORS_ALLOWED_ORIGINS = [
 
 ]
 
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://localhost:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+    }
+}
+
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
