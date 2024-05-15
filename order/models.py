@@ -4,22 +4,29 @@ from django.contrib.auth.models import User
 from product.models import Product
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('shipped', 'Shipped'), ('delivered', 'Delivered')])
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    shipping_address = models.TextField()
-    payment_method = models.CharField(max_length=20, choices=[('credit_card', 'Credit Card'), ('paypal', 'PayPal')])
-    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    paymentMethod = models.CharField(max_length=200, null=True, blank=True)   
+    taxPrice = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    shippingPrice = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    totalPrice = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    isPaid = models.BooleanField(default=False)
+    paidAt = models.DateTimeField(auto_now_add=False, null=True, blank=True)
+    isDelivered = models.BooleanField(default=False)
+    deliveredAt = models.DateTimeField(auto_now_add=False, null=True, blank=True)
+    createdAt = models.DateTimeField(auto_now_add=False, null=True, blank=True)
+    _id = models.AutoField(primary_key=True, editable=False)
 
     def __str__(self):
-        return f"{self.user.username} - {self.total_amount}"
+        return str(self.createdAt)
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
+    name = models.CharField(max_length=150, blank=True, null=True) 
+    qty = models.IntegerField(null=True, blank=True, default=0)
+    price = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    image = models.CharField(max_length=150, blank=True, null=True) 
+    _id = models.AutoField(primary_key=True, editable=False)
 
     def __str__(self):
-        return f"{self.order.user.username} - {self.product.name}"
+        return str(self.name)

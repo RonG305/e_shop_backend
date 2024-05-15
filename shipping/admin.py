@@ -1,5 +1,5 @@
 from django.contrib import admin
-from shipping.models import ShippingMethod
+from shipping.models import ShippingAddress
 # Register your models here.
 
-admin.site.register(ShippingMethod)
+admin.site.register(ShippingAddress)
