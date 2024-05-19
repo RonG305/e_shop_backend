@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from product.models import Product
+from product.models import Product, Favourites
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,3 +18,10 @@ class ProductSerializerView(serializers.ModelSerializer):
         repr = super().to_representation(instance)  
         repr["category"] = str(instance.category)
         return repr      
+    
+
+
+class FavouriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favourites
+        fields = '__all__'    

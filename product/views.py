@@ -2,8 +2,8 @@ from django.shortcuts import render
 from  rest_framework.response import Response
 from rest_framework import status
 from category.models import Category
-from product.models import Product
-from product.serializers import ProductSerializer, ProductSerializerView
+from product.models import Product, Favourites
+from product.serializers import ProductSerializer, ProductSerializerView, FavouriteSerializer
 from rest_framework.decorators import api_view
 
 
@@ -38,6 +38,7 @@ def getProduct(request, pk):
         return Response({"error": "Product with that id does not exist"})
     
     serializer = ProductSerializer(product)
+   
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -58,6 +59,7 @@ def getProductsByCategory(request):
     products = products.order_by("-time_created", "date_created")
 
     serializer = ProductSerializer(products, many=True)
+
    
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -85,6 +87,24 @@ def updateProduct(request, pk):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['GET'])
+def getFavourites(self):
+    favourites = Favourites.objects.all()
+    serializer = FavouriteSerializer(favourites, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+@api_view(["POST"])
+def putToFavourists(request, pk):
+    pass
+
+
+def deleteFromFavourites(request):
+    pass
 
 
 
