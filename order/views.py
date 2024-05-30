@@ -1,29 +1,34 @@
 from django.shortcuts import render
 from order.models import Order
-from order.serializers import OrderSerializer
+from order.serializers import OrderSerializer, OrderSerializerView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
 
 @api_view(["GET"])
+
 def getOrders(request):
-    orders = Order.objects.all()
+    orders = Order.objects.all().order_by("-createdAt")
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
-def getOrder(request, pk):
-    try:
-        order = Order.objects.get(pk=pk)
-    except:
-        return Response({'error': 'order does not exist'})  
+@permission_classes([IsAuthenticated])
+def getOrder(request):
+    user = request.user
 
-    serializer = OrderSerializer(order)
-    return Response(serializer.data, status=status.HTTP_200_OK)  
+    try:
+        order = Order.objects.filter(user=user).order_by("-createdAt")
+    except Order.DoesNotExist:
+        return Response({'message': 'Order not found'}, status=status.HTTP_204_NO_CONTENT) 
+    
+    serializer = OrderSerializer(order, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])

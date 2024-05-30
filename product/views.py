@@ -4,7 +4,8 @@ from rest_framework import status
 from category.models import Category
 from product.models import Product, Favourites
 from product.serializers import ProductSerializer, ProductSerializerView, FavouriteSerializer
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 from django.core.cache import cache
@@ -15,16 +16,16 @@ from django.core.cache import cache
 @api_view(["GET"])
 def getProducts(request):
 
-    cached_data = cache.get("cached_products")
-    if cached_data:
-        print("Data from Redis")
-        return Response(cached_data, status=status.HTTP_200_OK)
+    # cached_data = cache.get("cached_products")
+    # if cached_data:
+    #     print("Data from Redis")
+    #     return Response(cached_data, status=status.HTTP_200_OK)
 
     print("Data from the API")
     products = Product.objects.all().order_by("-time_created", "date_created")
     serializer = ProductSerializerView(products, many=True)
 
-    cache.set("cached_products", serializer.data, timeout=900)
+    # cache.set("cached_products", serializer.data, timeout=900)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -65,6 +66,7 @@ def getProductsByCategory(request):
 
 
 @api_view(["POST"])
+@parser_classes([MultiPartParser, FormParser])
 def postProduct(request):
     serializer = ProductSerializer(data=request.data)
 
@@ -87,6 +89,18 @@ def updateProduct(request, pk):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+def deleteProduct(requsest, pk):
+    try:
+        product = Product.objects.get(pk=pk)
+    except Product.DoesNotExist:
+        return Response({"error": "An error occured while deleting the product"})
+
+    product.delete()
+    return Response({"message": "deleted succesifully"}, status=status.HTTP_204_NO_CONTENT)    
+
 
 
 

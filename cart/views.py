@@ -42,6 +42,26 @@ def addToCart(request):
 
     return Response(serializer.data, status=status.HTTP_201_CREATED)  
 
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def clearCart(request):
+    user = request.user
+
+    try:
+        cart = Cart.objects.get(user=user)
+        cart_items = CartItem.objects.filter(cart=cart)
+
+
+        if cart_items.exists():
+            cart_items.delete()
+            return Response({'message': 'cart cleared succesifully'}, status=status.HTTP_204_NO_CONTENT)
+        
+        else:
+            return Response({'message': 'Cart is already empty'}, status=status.HTTP_200_OK)
+    except Cart.DoesNotExist:
+        return Response({'error': 'Cart could not be found'}, status=status.HTTP_200_OK)    
+
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def viewCart(request):

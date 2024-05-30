@@ -17,6 +17,7 @@ class CartItem(models.Model):
     cost = models.DecimalField(decimal_places=2, max_digits=8)
     quantity = models.PositiveIntegerField()
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
+    time_created = models.TimeField(auto_now_add=True)
 
 
     # class Meta:

@@ -1,9 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
+import uuid
 
 from product.models import Product
 
 class Order(models.Model):
+    id = models.AutoField(primary_key=True)
+    order_id = models.UUIDField(default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     full_name = models.CharField(max_length=200)
     email_address = models.EmailField()
@@ -19,8 +22,8 @@ class Order(models.Model):
     paidAt = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     isDelivered = models.BooleanField(default=False)
     deliveredAt = models.DateTimeField(auto_now_add=False, null=True, blank=True)
-    createdAt = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    id = models.AutoField(primary_key=True, editable=False)
+    createdAt = models.DateField(auto_now_add=True, null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.user.username} - {self.total_price}"
