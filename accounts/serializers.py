@@ -28,3 +28,9 @@ class UserSerializer(serializers.ModelSerializer):
         role, created = Role.objects.get_or_create(roleName=role_name, user=user)
 
         return user
+    
+class UserSerializerView(serializers.ModelSerializer):
+    role = ""
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name", "email", "date_joined"]   

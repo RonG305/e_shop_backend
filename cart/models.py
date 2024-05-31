@@ -20,8 +20,7 @@ class CartItem(models.Model):
     time_created = models.TimeField(auto_now_add=True)
 
 
-    # class Meta:
-    #     unique_together = ('cart', 'product') 
+    
 
     def __str__(self):
         return self.cart.user.username

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from accounts.serializers import UserSerializer
+from accounts.serializers import UserSerializer, UserSerializerView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.response import Response
@@ -8,9 +8,17 @@ from django.contrib.auth import login as django_login, authenticate, logout
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from accounts.models import Role
+from django.contrib.auth.models import User
 
 
 # Create your views here.
+
+@api_view(["GET"])
+def getCustomers(request):
+    customers = User.objects.all().order_by("-date_joined")
+    serializer = UserSerializerView(customers, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 @api_view(['POST'])
