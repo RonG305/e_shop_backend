@@ -9,23 +9,30 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 
 from django.core.cache import cache
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 # Create your views here.
+
+@receiver(post_delete, sender=Product)
+@receiver(post_save, sender=Product)
+def clear_cache(sender, instance, **kwrgs):
+    cache.delete("cached_products")
 
 
 @api_view(["GET"])
 def getProducts(request):
 
-    # cached_data = cache.get("cached_products")
-    # if cached_data:
-    #     print("Data from Redis")
-    #     return Response(cached_data, status=status.HTTP_200_OK)
+    cached_data = cache.get("cached_products")
+    if cached_data:
+        print("Data from Redis")
+        return Response(cached_data, status=status.HTTP_200_OK)
 
     print("Data from the API")
-    products = Product.objects.all().order_by("-time_created", "date_created")
+    products = Product.objects.all().order_by("-date_created", "-time_created")
     serializer = ProductSerializerView(products, many=True)
 
-    # cache.set("cached_products", serializer.data, timeout=900)
+    cache.set("cached_products", serializer.data, timeout=900)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 

@@ -14,8 +14,16 @@ from cart.models import Cart, CartItem
 
 def getOrders(request):
     orders = Order.objects.all().order_by("-createdAt")
+    orders_count = Order.objects.all().count()
     serializer = OrderSerializerView(orders, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+    data = {
+        "orders": serializer.data,
+        "orders_count": orders_count
+    }
+
+    return Response(data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -83,6 +91,17 @@ def createOrder(request):
             )
             order_item.save()
             total_price += order_item.price
+
+
+            # update product inventory
+
+            product = item.product
+            product.inventory_quantity -= item.quantity
+
+            if product.inventory_quantity < 0:
+                return Response({"error": "no items in the inventory"})
+            
+            product.save()
 
         order.total_price = total_price
         order.save()

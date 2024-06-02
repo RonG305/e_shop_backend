@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 # Create your views here.
 
 @api_view(["GET"])
+
 def getCustomers(request):
     customers = User.objects.all().order_by("-date_joined")
     serializer = UserSerializerView(customers, many=True)

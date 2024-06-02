@@ -27,6 +27,9 @@ class Order(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.total_price}"
+    
+
+  
 
 class OrderItem(models.Model):
     id = models.AutoField(primary_key=True)
@@ -39,3 +42,7 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name} (x{self.quantity})"
+    
+
+    class Meta:
+        db_table = "Order Items"
