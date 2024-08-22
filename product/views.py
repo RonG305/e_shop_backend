@@ -54,8 +54,6 @@ def getProduct(request, pk):
 @api_view(["GET"])
 def getProductsByCategory(request):
 
-    
-
     category = request.GET.get('category')  # Get the category parameter from the request query string
     products = Product.objects.all()
 
@@ -119,13 +117,17 @@ def getFavourites(self):
 
 
 
-@api_view(["POST"])
-def putToFavourists(request, pk):
-    pass
+@api_view(["GET"])
+def getProductByBarCode(request, barcode):
+    try:
+        product = Product.objects.get(barcode=barcode)
+    except Product.DoesNotExist:
+        return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+    serializer = ProductSerializer(product)
+    return Response(serializer.data, status=status.HTTP_200_OK)    
 
 
-def deleteFromFavourites(request):
-    pass
+ 
 
 
 

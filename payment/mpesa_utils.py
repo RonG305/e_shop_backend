@@ -1,45 +1,55 @@
+import base64
+import datetime
 import requests
 from requests.auth import HTTPBasicAuth
 from django.conf import settings
 
-def get_mpesa_access_token():
-    consumer_key = settings.MPESA_CONSUMER_KEY
-    consumer_secret = settings.MPESA_CONSUMER_SECRET
-    api_url = f"{settings.MPESA_BASE_URL}/oauth/v1/generate?grant_type=client_credentials"
-    response = requests.get(api_url, auth=HTTPBasicAuth(consumer_key, consumer_secret))
-    json_response = response.json()
-    return json_response['access_token']
+
+# CONSUMER_KEY = settings.CONSUMER_KEY
+# CONSUMER_SECRET = settings.CONSUMER_SECRET
+# BUSINESS_SHORT_CODE = settings.BUSINESS_SHORT_CODE
+# PASSKEY = settings.PASSKEY
+# LIPA_NA_MPESA_ONLINE_URL = settings.LIPA_NA_MPESA_ONLINE_URL
+# LIPA_NA_MPESA_ONLINE_AUTH_URL = settings.LIPA_NA_MPESA_ONLINE_AUTH_URL
+
+CONSUMER_KEY = '65hJEgJ7TYuZZwPGdGndnGagpU3Nn6AdAJFr62ddYMB0RE4h'
+CONSUMER_SECRET = 'GUaqqMGOLRNAMemU3nOVesbsJn5vGdSGkSWuqaKoX2IhnhyT3bACCRhwYgpU66HV'
+BUSINESS_SHORT_CODE = 174379
+PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
+LIPA_NA_MPESA_ONLINE_URL = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+LIPA_NA_MPESA_ONLINE_AUTH_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
 
 
+def get_access_token():
+    response = requests.get(LIPA_NA_MPESA_ONLINE_AUTH_URL, auth=HTTPBasicAuth(CONSUMER_KEY, CONSUMER_SECRET))
+    access_token = response.json().get('access_token')
+    return access_token
 
-def lipa_na_mpesa_online(phone_number, amount, account_reference, transaction_desc):
-    access_token = get_mpesa_access_token()
-    api_url = f"{settings.MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest"
-    headers = {"Authorization": f"Bearer {access_token}"}
-
+def lipa_na_mpesa_online(phone_number, amount):
+    access_token = get_access_token()
+    timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    password = base64.b64encode(f"{BUSINESS_SHORT_CODE}{PASSKEY}{timestamp}".encode()).decode('utf-8')
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
     payload = {
-        "BusinessShortCode": settings.MPESA_SHORTCODE,
-        "Password": generate_password(),
-        "Timestamp": get_timestamp(),
+        "BusinessShortCode": BUSINESS_SHORT_CODE,
+        "Password": password,
+        "Timestamp": timestamp,
         "TransactionType": "CustomerPayBillOnline",
         "Amount": amount,
         "PartyA": phone_number,
-        "PartyB": settings.MPESA_SHORTCODE,
+        "PartyB": BUSINESS_SHORT_CODE,
         "PhoneNumber": phone_number,
-        "CallBackURL": settings.MPESA_CALLBACK_URL,
-        "AccountReference": account_reference,
-        "TransactionDesc": transaction_desc
+        "CallBackURL": "http://192.168.43.118:8000/api/payment/mpesa-confirmation/",
+        "AccountReference": "MEDSWIFT AGENCY",
+        "TransactionDesc": "Payment for ordered products at MEDSWIFT AGENCY"
     }
-
-    response = requests.post(api_url, json=payload, headers=headers)
+    response = requests.post(LIPA_NA_MPESA_ONLINE_URL, json=payload, headers=headers)
     return response.json()
 
 
-def generate_password():
-    import base64
-    from datetime import datetime
-    data_to_encode = f"{settings.MPESA_SHORTCODE}{settings.MPESA_PASSKEY}{get_timestamp()}"
-    encoded_string = base64.b64encode(data_to_encode.encode())
-    return encoded_string.decode('utf-8')
-     
-     
+
+
+

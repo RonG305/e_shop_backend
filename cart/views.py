@@ -9,85 +9,88 @@ from rest_framework.permissions import IsAuthenticated
 
 
 # Create your views here.
-# @permission_classes([IsAuthenticated])
-# @api_view(['POST'])
-# def addToCart(request):
-#     user = request.user
-#     data = request.data
-
-#     product_id = data.get('product')
-#     quantity = data.get('quantity')
-
-
-#     if not product_id or not quantity:
-#         return Response({'error': 'product ID and quantity are required'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    
-
-    
-#     try:
-#         product = Product.objects.get(id=product_id)
-#     except Product.DoesNotExist:
-#         return Response({"error": "product not found"}, status=status.HTTP_404_NOT_FOUND)  
-    
-
-#     if product.inventory_quantity < 1:
-#         return Response({"error": "product run out of stock"}, status=status.HTTP_400_BAD_REQUEST)
-
-#     cart, created = Cart.objects.get_or_create(user=user)  
-#     cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product, defaults={
-#         'cost': product.price,
-#         'quantity': quantity
-#     })
-
-#     if not created:
-#         cart_item.quantity += 1
-#         cart_item.save()
-
-#     serializer = CartItemSerializer(cart_item)    
-  
-
-#     return Response(serializer.data, status=status.HTTP_201_CREATED)  
-
-@api_view(["POST"])
 @permission_classes([IsAuthenticated])
+@api_view(['POST'])
 def addToCart(request):
     user = request.user
     data = request.data
 
-    product_id = data.get("product")
-    quantity = data.get("quantity")
+    product_id = data.get('product')
+    quantity = data.get('quantity')
 
-    if not product_id and quantity:
-        return Response({"error": "Product ID and quantity is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+    if not product_id or not quantity:
+        return Response({'error': 'product ID and quantity are required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
 
     
     try:
         product = Product.objects.get(id=product_id)
     except Product.DoesNotExist:
-        return Response({"error": "Product with such id not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "product not found"}, status=status.HTTP_404_NOT_FOUND)  
     
 
     if product.inventory_quantity < 1:
-        return Response({"error": "Product is out of stock"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "product run out of stock"}, status=status.HTTP_400_BAD_REQUEST)
 
-
-    cart, created = Cart.objects.get_or_create(user=user) 
-    cart_item, created = CartItem.objects.get_or_create(product=product, defaults={
-       'cost': product.price,
-       'quantity': quantity
-  }, cart=cart )  
+    cart, created = Cart.objects.get_or_create(user=user)  
+    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product, defaults={
+        'cost': product.price,
+        'quantity': quantity
+    })
 
     if not created:
         cart_item.quantity += 1
-       
         cart_item.save()
+
+    serializer = CartItemSerializer(cart_item)    
+  
+
+    return Response(serializer.data, status=status.HTTP_201_CREATED)  
+
+# @api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+# def addToCart(request):
+#     user = request.user
+#     data = request.data
+
+#     product_id = data.get("product")
+#     quantity = data.get("quantity")
+
+#     if not product_id and quantity:
+#         return Response({"error": "Product ID and quantity is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+    
+#     try:
+#         product = Product.objects.get(id=product_id)
+#     except Product.DoesNotExist:
+#         return Response({"error": "Product with such id not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+
+#     print("PD INVENTORY QUANTITY: ", product.inventory_quantity)
+    
+
+#     if product.inventory_quantity < 1:
+#         return Response({"error": "Product is out of stock"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+#     cart, created = Cart.objects.get_or_create(user=user) 
+#     cart_item, created = CartItem.objects.get_or_create(product=product, defaults={
+#        'cost': product.price,
+#        'quantity': quantity
+#   }, cart=cart )  
+
+#     if not created:
+#         cart_item.quantity += 1
+       
+#         cart_item.save()
        
 
 
-    serializer = CartItemSerializer(cart_item)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)  
+#     serializer = CartItemSerializer(cart_item)
+#     return Response(serializer.data, status=status.HTTP_201_CREATED)  
 
 
 

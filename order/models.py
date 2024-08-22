@@ -15,7 +15,7 @@ class Order(models.Model):
     zip_code = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=12)
 
-    total_price = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    total_price = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     payment_method = models.CharField(max_length=200, null=True, blank=True)  
     is_paid = models.BooleanField(default=False)
 
@@ -23,6 +23,7 @@ class Order(models.Model):
     isDelivered = models.BooleanField(default=False)
     deliveredAt = models.DateTimeField(auto_now_add=False, null=True, blank=True)
     createdAt = models.DateField(auto_now_add=True, null=True, blank=True)
+    creationTime = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
 
     def __str__(self):

@@ -1,54 +1,61 @@
+import datetime
 from django.shortcuts import render
-from django_daraja.mpesa.core import MpesaClient
-from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from payment.mpesa_utils import lipa_na_mpesa_online
-from payment.models import MpesaTransaction
-from rest_framework.response import Response
+from payment.models import MpesaPaymentTransaction
+from rest_framework import status
+from payment.serializers import MpesaPaymentTransactionSerializer
+import json
+from payment.models import MpesaPaymentTransaction
 
-# Create your views here.
+from rest_framework.response import Response
+from order.models import Order
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getPaymentData(request):
+    payment_data = MpesaPaymentTransaction.objects.all()
+    serializers = MpesaPaymentTransactionSerializer(payment_data, many=True)
+    return Response(serializers.data, status=status.HTTP_200_OK)
+
+
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def initiate_payment(request):
-    user = request.user
-    phone_number = request.data.get("phone_number")
-    amount = request.data.get("amount")
-    account_reference = request.data.get("account_reference")
-    transaction_desc = request.data.get("transaction_desc")
+def mpesa_confirmation(request):
+    data = json.loads(request.body)
 
-    response = lipa_na_mpesa_online(phone_number, amount, account_reference, transaction_desc)
-
-
-    if response['ResponseCode'] == '0':
-        MpesaTransaction.objects.create(
-            user=user,
-            phone_number=phone_number,
-            amount=amount,
-            transaction_id=response['order_id'],
-            status="pending"
-        )
-        return  Response({"message": "Payment initiated succesifully"})
-    return Response({"error": "Payment initialization failed"})
-
-
-def mpesa_callback(request):
-    data = request.data
-    checkout_request_id = data['Body']['stkCallback']['order_id']
+   
+    transaction_id = data['Body']['stkCallback']['CheckoutRequestID']
     result_code = data['Body']['stkCallback']['ResultCode']
     result_desc = data['Body']['stkCallback']['ResultDesc']
 
-
     try:
-        transaction = MpesaTransaction.objects.get(transaction_id=checkout_request_id)
-        if result_code == 0:
-            transaction.status = "success"
-        else:
-            transaction.status = 'Failed'
+        transaction = MpesaPaymentTransaction.objects.get(transaction_id=transaction_id)
+        transaction.status = "paid"
         transaction.save()
-        return Response({'message': 'callback received succesifully'}, status=200)
-    except MpesaTransaction.DoesNotExist:
-        return Response({'error': 'transaction not found'}, status=400)            
+
+        if result_code == 0:
+           
+            transaction.status = 'Completed'
+            transaction.save()
+            
+            order = Order.objects.get(user=transaction.user, phone_number=transaction.phone_number)
+            order.is_paid = True
+            print("------------------ORDER STATUS---------", order.is_paid)
+            order.save()
+
+        return Response({"ResultCode": 0, "ResultDesc": "Accepted"})
+    except MpesaPaymentTransaction.DoesNotExist:
+        return Response({"ResultCode": 1, "ResultDesc": "Transaction not found"})
+    
+
+    
+
+  
+    
 
 
 

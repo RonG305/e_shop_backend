@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -42,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'django_redis',
      'django_daraja',
      'rest_framework_simplejwt',
@@ -217,26 +221,9 @@ MPESA_ENVIRONMENT = 'sandbox'
 
 # Credentials for the daraja app
 
-MPESA_CONSUMER_KEY = '65hJEgJ7TYuZZwPGdGndnGagpU3Nn6AdAJFr62ddYMB0RE4h'
-MPESA_CONSUMER_SECRET = 'GUaqqMGOLRNAMemU3nOVesbsJn5vGdSGkSWuqaKoX2IhnhyT3bACCRhwYgpU66HV'
-
-#Shortcode to use for transactions. For sandbox  use the Shortcode 1 provided on test credentials page
-
-MPESA_SHORTCODE = '174379'
-
-MPESA_BASE_URL = 'https://sandbox.safaricom.co.ke'
-
-MPESA_EXPRESS_SHORTCODE = '174379'
-
-
-MPESA_SHORTCODE_TYPE = 'paybill'
-
-
-
-MPESA_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
-
-
-MPESA_INITIATOR_USERNAME = 'Safaricom999!*!'
-
-
-MPESA_INITIATOR_SECURITY_CREDENTIAL = 'Q13Yw0HHEOEqZV2J0J7hhQtqY7uflpydMYOBdgRibSmY3DJDZnjWbuuPPrH265PNlCWeNf/6dslMS7P3exLZRnpcb5cxtzOaVfxWaTK1gJCP85N90BHnb70PxlA+yNAqqgcHRC43/zGNuGR4tt0ZjJyLqZXAnYRFMgmswu1f9Wf6dutcMcAlsNsbVysVjonIm1QdAzvoLGOcUCtm8esJ+ByioqILUjbuTbiqPJ3h5+KOeAnfccaPud9KYmm4A7cCivre+ZswDmZG2ovZmB7SnbExoeYfo3ySFH2lZhG4AQSQeNvL2EUWU0hVbB1x1wahkXNnUX9I17j1fk/oLwpCnQ=='
+CONSUMER_KEY = os.getenv("CONSUMER_KEY")
+CONSUMER_SECRET = os.getenv("CONSUMER_SECRET")
+BUSINESS_SHORT_CODE = os.getenv("BUSINESS_SHORT_CODE")
+PASSKEY = os.getenv("PASSKEY")
+LIPA_NA_MPESA_ONLINE_URL = os.getenv("LIPA_NA_MPESA_ONLINE_URL")
+LIPA_NA_MPESA_ONLINE_AUTH_URL = os.getenv("LIPA_NA_MPESA_ONLINE_AUTH_URL")

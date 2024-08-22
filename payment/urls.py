@@ -2,7 +2,7 @@ from django.urls import path
 from payment import views
 
 urlpatterns = [
- 
-    path('initiate-payment/', views.initiate_payment, name='initiate-paymet'),
-    path('mpesa-callback/', views.mpesa_callback, name='mpesa-callback')
+    path("mpesa-confirmation/", views.mpesa_confirmation, name='mpesa-confirmation'),
+    path('get-payments/', views.getPaymentData, name='get-payments'),
+  
 ]

@@ -14,7 +14,7 @@ class Product(models.Model):
     inventory_quantity = models.PositiveIntegerField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products/')
-    
+    barcode = models.CharField(max_length=255, unique=True, null=True, blank=True)
     date_created = models.DateField(auto_now_add=True)
     date_updated = models.DateField(auto_now_add=True)
     time_created = models .TimeField(auto_now_add=True)
