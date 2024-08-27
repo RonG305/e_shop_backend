@@ -11,6 +11,7 @@ from django.conf import settings
 # PASSKEY = settings.PASSKEY
 # LIPA_NA_MPESA_ONLINE_URL = settings.LIPA_NA_MPESA_ONLINE_URL
 # LIPA_NA_MPESA_ONLINE_AUTH_URL = settings.LIPA_NA_MPESA_ONLINE_AUTH_URL
+# 174379
 
 CONSUMER_KEY = '65hJEgJ7TYuZZwPGdGndnGagpU3Nn6AdAJFr62ddYMB0RE4h'
 CONSUMER_SECRET = 'GUaqqMGOLRNAMemU3nOVesbsJn5vGdSGkSWuqaKoX2IhnhyT3bACCRhwYgpU66HV'
@@ -25,7 +26,7 @@ def get_access_token():
     access_token = response.json().get('access_token')
     return access_token
 
-def lipa_na_mpesa_online(phone_number, amount):
+def lipa_na_mpesa_online(phone_number, amount, account_number):
     access_token = get_access_token()
     timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     password = base64.b64encode(f"{BUSINESS_SHORT_CODE}{PASSKEY}{timestamp}".encode()).decode('utf-8')
@@ -42,8 +43,9 @@ def lipa_na_mpesa_online(phone_number, amount):
         "PartyA": phone_number,
         "PartyB": BUSINESS_SHORT_CODE,
         "PhoneNumber": phone_number,
+       "AccountReference": "ELEOSHOP", 
         "CallBackURL": "http://192.168.43.118:8000/api/payment/mpesa-confirmation/",
-        "AccountReference": "MEDSWIFT AGENCY",
+        "AccountReference": "Eleoshop clothline Business",
         "TransactionDesc": "Payment for ordered products at MEDSWIFT AGENCY"
     }
     response = requests.post(LIPA_NA_MPESA_ONLINE_URL, json=payload, headers=headers)

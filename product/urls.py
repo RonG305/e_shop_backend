@@ -12,3 +12,5 @@ urlpatterns = [
 
     path("favourites/", views.getFavourites, name="favourites")
 ]
+
+

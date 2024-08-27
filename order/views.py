@@ -113,9 +113,9 @@ def createOrder(request):
 
         order.total_price = total_price
         order.save()
-      
+        account_number = '0220181399230' 
 
-        payment_response = lipa_na_mpesa_online(phone_number, int(total_price))  
+        payment_response = lipa_na_mpesa_online(phone_number, int(1), account_number)  
         print("Payment Response", payment_response)
 
         # Check if payment was successful
