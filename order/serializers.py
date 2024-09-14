@@ -17,7 +17,12 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'order_id', 'user', 'full_name', 'email_address', 'city', 'address', 'zip_code', 'phone_number', 'total_price', 'payment_method', 'is_paid', 'paidAt', 'isDelivered', 'deliveredAt', 'createdAt', 'order_items']
+        fields = ['id', 'order_id', 'user', 'full_name', 'email_address', 'city', 'address', 'zip_code', 'phone_number', 'total_price', 'profit', 'payment_method', 'is_paid', 'paidAt', 'isDelivered', 'deliveredAt', 'createdAt', 'order_items']
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)  
+        rep["user"] = str(instance.user)
+        return rep
 
 
 class OrderSerializerView(serializers.ModelSerializer):

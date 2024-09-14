@@ -16,6 +16,7 @@ class Order(models.Model):
     phone_number = models.CharField(max_length=12)
 
     total_price = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    profit = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     payment_method = models.CharField(max_length=200, null=True, blank=True)  
     is_paid = models.BooleanField(default=False)
 

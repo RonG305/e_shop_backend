@@ -111,7 +111,7 @@ WSGI_APPLICATION = 'pharmaceuticaBackend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'medswift',
+        'NAME': 'liviamart',
         'USER': 'postgres',
         'PASSWORD': 'RonG254k',
         'HOST': 'localhost',

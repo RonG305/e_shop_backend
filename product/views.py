@@ -96,6 +96,23 @@ def updateProduct(request, pk):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+@api_view(["PATCH"])
+def updateProductPrice(request, pk):
+    try:
+        product = Product.objects.get(pk=pk)
+    except:
+        return Response({"error": "Product with that id does not exist"})
+    
+    price_data = {"price": request.data.get("price")}
+        
+    serializer = ProductSerializer(product, data=price_data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['DELETE'])
 def deleteProduct(requsest, pk):
     try:
