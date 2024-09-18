@@ -65,10 +65,28 @@ def deleteCategory(request, pk):
 
 
 
+# @api_view(["GET"])
+# def getSubCategories(request):
+   
+#     sub_categories = Subcategory.objects.all()
+
+#     serializer = SubCategorySerializer(sub_categories, many=True)
+#     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 @api_view(["GET"])
 def getSubCategories(request):
-   
-    sub_categories = Subcategory.objects.all()
+    # Get the category name from the query params
+    category_name = request.query_params.get("category")
+    
+    if category_name:
+        try:
+            category = Category.objects.get(name=category_name)
+            sub_categories = Subcategory.objects.filter(category=category)
+        except Category.DoesNotExist:
+            return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        sub_categories = Subcategory.objects.all()
 
     serializer = SubCategorySerializer(sub_categories, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
