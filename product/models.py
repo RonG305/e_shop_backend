@@ -1,5 +1,5 @@
 from django.db import models
-from category.models import Category
+from category.models import Category, Subcategory
 from django.contrib.auth.models import User
 
 # Create your models here.
@@ -13,6 +13,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=20, decimal_places=2)
     inventory_quantity = models.PositiveIntegerField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    subcategory = models.ForeignKey(Subcategory, on_delete=models.SET_NULL, null=True, blank=True)
     image = models.ImageField(upload_to='products/')
     barcode = models.CharField(max_length=255, unique=True, null=True, blank=True)
     date_created = models.DateField(auto_now_add=True)

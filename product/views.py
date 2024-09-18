@@ -51,22 +51,43 @@ def getProduct(request, pk):
 
 
 
+# @api_view(["GET"])
+# def getProductsByCategory(request):
+
+#     category = request.GET.get('category')  # Get the category parameter from the request query string
+#     products = Product.objects.all()
+
+#     # If a category parameter is provided, filter products by that category
+#     if category:
+#         products = products.filter(category__name=category)
+
+#     # Order the products 
+#     products = products.order_by("-time_created", "date_created")
+
+#     serializer = ProductSerializer(products, many=True)
+
+   
+#     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 @api_view(["GET"])
 def getProductsByCategory(request):
-
-    category = request.GET.get('category')  # Get the category parameter from the request query string
+    category = request.GET.get('category')      
+    subcategory = request.GET.get('subcategory')  
     products = Product.objects.all()
 
-    # If a category parameter is provided, filter products by that category
+   
     if category:
         products = products.filter(category__name=category)
+    
+   
+    if subcategory:
+        products = products.filter(subcategory__name=subcategory)
 
-    # Order the products 
+
     products = products.order_by("-time_created", "date_created")
 
     serializer = ProductSerializer(products, many=True)
-
-   
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
