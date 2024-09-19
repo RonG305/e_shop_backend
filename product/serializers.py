@@ -7,6 +7,19 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class ProductSerializerView(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance) 
+        rep["category"] = str(instance.category)
+        rep["subcategory"] = str(instance.subcategory)  
+        return rep
+
+
+
 
 
 class ProductSerializerView(serializers.ModelSerializer):

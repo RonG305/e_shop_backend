@@ -87,7 +87,7 @@ def getProductsByCategory(request):
 
     products = products.order_by("-time_created", "date_created")
 
-    serializer = ProductSerializer(products, many=True)
+    serializer = ProductSerializerView(products, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 

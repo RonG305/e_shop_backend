@@ -81,107 +81,6 @@ def getOrderId(request, pk):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def createOrder(request):
-#     user = request.user
-#     data = request.data
-
-#     try:
-#         cart = Cart.objects.get(user=user)
-#         cart_items = CartItem.objects.filter(cart=cart)
-
-#         if not cart_items.exists():
-#             return Response({'error': 'No items in the cart'}, status=status.HTTP_400_BAD_REQUEST)
-        
-#         phone_number = data.get('phone_number')
-        
-
-#         order = Order(
-#             user=user,
-#             full_name=data.get('full_name'),
-#             email_address=data.get('email_address'),
-#             city=data.get('city'),
-#             address=data.get('address'),
-#             zip_code=data.get('zip_code'),
-#             phone_number=data.get('phone_number'),
-#             payment_method=data.get('payment_method'),
-#             total_price=0  # Will be calculated
-        
-#         )
-
-
-#         order.save()
-
-#         total_price = 0  # To calculate total selling price
-#         total_cost = 0   # To calculate total buying cost
-
-#         for item in cart_items:
-
-#             product = item.product
-#             item_price = product.price * item.quantity  # Selling price per item * quantity
-#             item_cost = product.old_price * item.quantity  # Buying price (old_price) per item * quantity
-
-#             order_item = OrderItem(
-#                 order=order,
-#                 product=item.product,
-#                 quantity=item.quantity,
-#                 price=item.product.price * item.quantity
-#             )
-#             order_item.save()
-#             total_price += item_price
-#             total_cost += item.product.price * item.quantity 
-
-
-            
-
-
-#             # update product inventory
-#             product = item.product
-#             if product.inventory_quantity < 1:
-#                 return Response({"error": "no items in the inventory"})
-    
-#             print("Inventory number ", product.inventory_quantity)
-#             product.inventory_quantity -= item.quantity
-#             product.save()
-
-
-#         # Calculate profit
-#         total_profit = total_price - total_cost     
-
-#         order.total_price = total_price
-#         order.profit  = total_profit
-#         order.save()
-#         account_number = '0220181399230' 
-
-#         payment_response = lipa_na_mpesa_online(phone_number, int(total_price), account_number)  
-#         print("Payment Response", payment_response)
-
-#         # Check if payment was successful
-#         if payment_response.get('ResponseCode') != '0':
-#             return Response({'error': 'Payment failed'}, status=status.HTTP_400_BAD_REQUEST)
-        
-#         transaction_id = payment_response.get('CheckoutRequestID')
-        
-#         mpesa_transaction = MpesaPaymentTransaction(
-#             user=user,
-#             phone_number=phone_number,
-#             amount=total_price,
-#             transaction_id=transaction_id,
-#             status="pending"
-#         )
-#         mpesa_transaction.save()
-
-        
-
-#         # Clear the cart after creating the order
-#         cart_items.delete()
-        
-#         serializer = OrderSerializer(order)
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-#     except Cart.DoesNotExist:
-#         return Response({'error': 'Cart does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -191,17 +90,17 @@ def createOrder(request):
     data = request.data
 
     try:
-        # Get the user's cart and cart items
+     
         cart = Cart.objects.get(user=user)
         cart_items = CartItem.objects.filter(cart=cart)
 
-        # Check if there are any items in the cart
+
         if not cart_items.exists():
             return Response({'error': 'No items in the cart'}, status=status.HTTP_400_BAD_REQUEST)
 
         phone_number = data.get('phone_number')
 
-        # Create an order instance
+
         order = Order(
             user=user,
             full_name=data.get('full_name'),
@@ -211,47 +110,47 @@ def createOrder(request):
             zip_code=data.get('zip_code'),
             phone_number=data.get('phone_number'),
             payment_method=data.get('payment_method'),
-            total_price=0  # This will be updated later
+            total_price=0  
         )
         order.save()
 
-        total_price = 0  # To calculate total selling price
-        total_cost = 0   # To calculate total buying cost
+        total_price = 0  
+        total_cost = 0  
 
         for item in cart_items:
             product = item.product
-            item_price = product.price * item.quantity  # Selling price per item * quantity
-            item_cost = product.old_price * item.quantity  # Buying price (old_price) per item * quantity
+            item_price = product.price * item.quantity 
+            item_cost = product.old_price * item.quantity  
 
-            # Create an order item
+    
             order_item = OrderItem(
                 order=order,
                 product=item.product,
                 quantity=item.quantity,
-                price=item_price  # Selling price per item * quantity
+                price=item_price  
             )
             order_item.save()
 
-            # Update total price and total cost
+     
             total_price += item_price
             total_cost += item_cost
 
-            # Update product inventory
+    
             if product.inventory_quantity < item.quantity:
                 return Response({"error": "Not enough items in the inventory"}, status=status.HTTP_400_BAD_REQUEST)
             product.inventory_quantity -= item.quantity
             product.save()
 
-        # Calculate profit
-        total_profit = total_price - total_cost  # Profit = Total selling price - Total buying cost
+      
+        total_profit = total_price - total_cost 
 
-        # Update the order's total price and profit
+     
         order.total_price = total_price
         order.profit = total_profit
         order.save()
 
-        # Process Mpesa payment
-        account_number = '0220181399230'  # Your Mpesa account number
+  
+        account_number = '0220181399230'
         payment_response = lipa_na_mpesa_online(phone_number, int(total_price), account_number)
         print("Payment Response", payment_response)
 
@@ -260,7 +159,7 @@ def createOrder(request):
 
         transaction_id = payment_response.get('CheckoutRequestID')
 
-        # Save the Mpesa payment transaction
+
         mpesa_transaction = MpesaPaymentTransaction(
             user=user,
             phone_number=phone_number,
@@ -270,10 +169,84 @@ def createOrder(request):
         )
         mpesa_transaction.save()
 
-        # Clear the cart after creating the order
+  
         cart_items.delete()
 
-        # Serialize and return the order data
+
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    except Cart.DoesNotExist:
+        return Response({'error': 'Cart does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # CASH PAYMENT ENDPOINT
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def createOrderForCashPayment(request):
+    user = request.user
+    data = request.data
+
+    try:
+    
+        cart = Cart.objects.get(user=user)
+        cart_items = CartItem.objects.filter(cart=cart)
+
+ 
+        if not cart_items.exists():
+            return Response({'error': 'No items in the cart'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        order = Order(
+            user=user,
+            full_name=data.get('full_name'),
+            email_address=data.get('email_address'),
+            city=data.get('city'),
+            address=data.get('address'),
+            zip_code=data.get('zip_code'),
+            phone_number=data.get('phone_number'),
+            payment_method=data.get('payment_method'),  
+            total_price=0 
+        )
+        order.save()
+
+        total_price = 0 
+        total_cost = 0 
+
+        for item in cart_items:
+            product = item.product
+            item_price = product.price * item.quantity  
+            item_cost = product.old_price * item.quantity  
+
+      
+            order_item = OrderItem(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=item_price 
+            )
+            order_item.save()
+
+           
+            total_price += item_price
+            total_cost += item_cost
+
+       
+            if product.inventory_quantity < item.quantity:
+                return Response({"error": "Not enough items in the inventory"}, status=status.HTTP_400_BAD_REQUEST)
+            product.inventory_quantity -= item.quantity
+            product.save()
+
+  
+        total_profit = total_price - total_cost  
+
+        order.total_price = total_price
+        order.profit = total_profit
+        order.save()
+
+      
+        cart_items.delete()
+
+      
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
