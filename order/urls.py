@@ -8,6 +8,7 @@ urlpatterns = [
     path('getUserOrder_seller/', views.getOrder_Seller, name='getUserOrder_seller'),
     path("getOrder/<int:pk>/", views.getOrderId, name="getOrder"),
      path("getAllOrders/", views.getAllOrders, name="getAllOrders"),
+     path("deleteAllOrders/", views.deleteAllOrders, name="deleteAllOrders"),
     
     path("createOrder/", views.createOrder, name="createOrder"),
     path("createOrderForCashPayment/", views.createOrderForCashPayment, name="createOrderForCashPayment"),

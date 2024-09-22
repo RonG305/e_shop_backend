@@ -67,6 +67,14 @@ def getAllOrders(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def deleteAllOrders(request):
+    orders = Order.objects.all()
+    orders.delete()
+    return Response({"response": "deleted succesifully"}, status=status.HTTP_204_NO_CONTENT)
+    
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
